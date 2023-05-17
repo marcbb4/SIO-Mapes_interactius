@@ -31,7 +31,7 @@ fs.readdir('Dataset', (err, files) => {
             features: []
         };
         // Obtiene el nombre del archivo sin la extensión
-        const nameWithoutExtension = path.parse(file).name;
+        const nameWithoutExtension = path.parse(file).name.replace(" ", "");
 
         const sqlQuery = `SELECT avg(accommodates) as accommodates, avg(bedrooms) as bedrooms, avg(price) as price, avg(minimum_nights) as minimum_nights, avg(maximum_nights) as maximum_nights, avg(availability_365) as availability_365, avg(number_of_reviews) as number_of_reviews, avg(review_scores_rating) as review_scores_rating, avg(reviews_per_month) as reviews_per_month, neighbourhood_cleansed
                   FROM accomodation

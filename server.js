@@ -3,23 +3,44 @@ const fs = require('fs');
 const path = require('path');
 
 const server = http.createServer((req, res) => {
-  // Ruta a tu archivo HTML y el directorio Dataset
-  const filePath = req.url === '/' ? '/index.html' : req.url;
-  const fullPath = path.join(__dirname, filePath);
+  if (req.url === '/api/getFilenames') {
+    // Directory path to retrieve filenames
+    const directoryPath = 'DatasetUpdated';
 
-  // Determina el tipo de contenido basado en la extensión del archivo
-  const contentType = getContentType(filePath);
+    fs.readdir(directoryPath, (err, files) => {
+      if (err) {
+        console.error('Error al leer el directorio:', err);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Error al leer el directorio' }));
+        return;
+      }
 
-  // Lee el archivo y envíalo como respuesta
-  fs.readFile(fullPath, (err, content) => {
-    if (err) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('Archivo no encontrado');
-    } else {
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(content);
-    }
-  });
+      // Filter the filenames to exclude directories
+      const filenames = files.filter((file) => path.extname(file).toLowerCase() === '.geojson');
+
+      // Send the filenames as the JSON response
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(filenames));
+    });
+  } else {
+    // Ruta a tu archivo HTML y el directorio Dataset
+    const filePath = req.url === '/' ? '/index.html' : req.url;
+    const fullPath = path.join(__dirname, filePath);
+
+    // Determina el tipo de contenido basado en la extensión del archivo
+    const contentType = getContentType(filePath);
+
+    // Lee el archivo y envíalo como respuesta
+    fs.readFile(fullPath, (err, content) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Archivo no encontrado');
+      } else {
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(content);
+      }
+    });
+  }
 });
 
 const port = 8000;
