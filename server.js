@@ -24,7 +24,7 @@ const server = http.createServer((req, res) => {
     });
   } else {
     // Ruta a tu archivo HTML y el directorio Dataset
-    const filePath = req.url === '/' ? '/index.html' : req.url;
+    const filePath = req.url === '/' ? '/price.html' : req.url;
     const fullPath = path.join(__dirname, filePath);
 
     // Determina el tipo de contenido basado en la extensión del archivo
@@ -34,7 +34,7 @@ const server = http.createServer((req, res) => {
     fs.readFile(fullPath, (err, content) => {
       if (err) {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Archivo no encontrado');
+        res.end(`Archivo no encontrado ${filePath}`);
       } else {
         res.writeHead(200, { 'Content-Type': contentType });
         res.end(content);
