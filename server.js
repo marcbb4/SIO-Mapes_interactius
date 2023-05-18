@@ -24,7 +24,7 @@ const server = http.createServer((req, res) => {
     });
   } else {
     // Ruta a tu archivo HTML y el directorio Dataset
-    const filePath = req.url === '/' ? '/price.html' : req.url;
+    const filePath = req.url === '/' ? '/minimum_nights.html' : req.url;
     const fullPath = path.join(__dirname, filePath);
 
     // Determina el tipo de contenido basado en la extensión del archivo
