@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Price</title>
+    <title>Accommodates</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" crossorigin="" />
@@ -32,8 +32,8 @@
         };
         // method that we will use to update the control based on feature properties passed
         info.update = function (props) {
-            this._div.innerHTML = '<h4>Preus</h4>' + (props ?
-                '<b>' + props.neighbourhood + '</b><br />' + props.price.toFixed(2) + ' €</sup>'
+            this._div.innerHTML = '<h4>Hostes</h4>' + (props ?
+                '<b>' + props.neighbourhood + '</b><br />' + props.accommodates.toFixed(2) + ' hostes</sup>'
                 : '');
         };
         info.addTo(map);
@@ -45,7 +45,7 @@
         legend.onAdd = function (_map) {
 
             var div = L.DomUtil.create('div', 'info legend'),
-                grades = [1, 50, 100, 200, 300, 500, 700, 900],
+                grades = [1, 3, 5, 7, 9, 11],
                 labels = [];
 
             // loop through our density intervals and generate a label with a colored square for each interval
@@ -62,20 +62,17 @@
 
 
         function getColor(d) {
-            return d > 900 ? '#800026' :
-                d > 700 ? '#BD0026' :
-                    d > 500 ? '#E31A1C' :
-                        d > 300 ? '#FC4E2A' :
-                            d > 200 ? '#FD8D3C' :
-                                d > 100 ? '#FEB24C' :
-                                    d > 50 ? '#FED976' :
-                                        '#FFEDA0';
+            return d > 11 ? '#800026' :
+                d > 9 ? '#E31A1C' :
+                    d > 7 ? '#FC4E2A' :
+                        d > 5 ? '#FD8D3C' :
+                            d > 3 ? '#FEB24C' :
+                                '#FFEDA0';
         }
-
 
         function style(feature) {
             return {
-                fillColor: getColor(feature.properties.price),
+                fillColor: getColor(feature.properties.accommodates),
                 weight: 2,
                 opacity: 1,
                 color: 'white',
