@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Ressenyes</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div id="myMap" style="width: 70%; height: 700px;"></div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" crossorigin=""></script>
+    <script>
+
+        var map = L.map('myMap').setView([55.953251, -3.188267], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        L.control.scale().addTo(map);
+
+
+
+
+        var info = L.control();
+        info.onAdd = function (_map) {
+            this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+            this.update();
+            return this._div;
+        };
+        // method that we will use to update the control based on feature properties passed
+        info.update = function (props) {
+            this._div.innerHTML = '<h4>Ressenyes</h4>' + (props ?
+                '<b>' + props.neighbourhood + '</b><br />' + props.number_of_reviews.toFixed(2) + ' ressenyes</sup>'
+                : '');
+        };
+        info.addTo(map);
+
+
+
+
+        var legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function (_map) {
+
+            var div = L.DomUtil.create('div', 'info legend'),
+                grades = [0, 10, 20, 30, 50, 75, 100, 125],
+                labels = [];
+
+            // loop through our density intervals and generate a label with a colored square for each interval
+            for (var i = 0; i < grades.length; i++) {
+                div.innerHTML +=
+                    '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+            }
+            return div;
+        };
+        legend.addTo(map);
+
+
+
+
+        function getColor(d) {
+            return d > 125 ? '#800026' :
+                d > 100 ? '#BD0026' :
+                    d > 75 ? '#E31A1C' :
+                        d > 50 ? '#FC4E2A' :
+                            d > 30 ? '#FD8D3C' :
+                                d > 20 ? '#FEB24C' :
+                                    d > 10 ? '#FED976' :
+                                        '#FFEDA0';
+        }
+
+
+        function style(feature) {
+            return {
+                fillColor: getColor(feature.properties.number_of_reviews),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+        function highlightFeature(e) {
+            var layer = e.target;
+
+            layer.setStyle({
+                weight: 5,
+                color: '#666',
+                dashArray: '',
+                fillOpacity: 0.7
+            });
+
+            layer.bringToFront();
+
+            info.update(layer.feature.properties);
+        }
+
+        function resetHighlight(e) {
+            var layer = e.target;
+            layer.setStyle(style(layer.feature));
+            info.update();
+        }
+
+        function zoomToFeature(e) {
+            map.fitBounds(e.target.getBounds());
+        }
+
+        function onEachFeature(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight,
+                click: zoomToFeature
+            });
+        }
+
+
+        fetch('/api/getFilenames')
+            .then(response => response.json())
+            .then(data => {
+                // Process the list of filenames
+                data.forEach(filename => {
+                    // Agregar capa de coropletas
+                    fetch('DatasetUpdated/' + filename)
+                        .then(function (response) {
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            L.geoJSON(data, {
+                                style: style,
+                                onEachFeature: onEachFeature
+                            }).addTo(map);
+                        })
+                        .catch(function (error) {
+                            console.log('Error al cargar el archivo GeoJSON:', error);
+                        });
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching filenames:', error);
+            });
+
+
+
+    </script>
+</body>
+
+</html>
