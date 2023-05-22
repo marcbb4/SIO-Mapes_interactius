@@ -49,7 +49,7 @@ connection.query(sqlQuery, (error, results) => {
   });
 
   // Guardar el archivo GeoJSON actualizado
-  const updatedGeojsonFilePath = 'DatasetUpdated/heatmap.geojson';
+  const updatedGeojsonFilePath = 'DatasetHeatmap/heatmap.geojson';
   fs.writeFileSync(updatedGeojsonFilePath, JSON.stringify(updatedGeojson));
   console.log('Archivo ' + updatedGeojsonFilePath + ' guardado con éxito.');
 
