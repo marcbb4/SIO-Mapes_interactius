@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Heatmap</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+
+<body>
+    <div id="myMap" style="width: 70%; height: 700px;"></div>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+    <script>
+
+        var baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        var cfg = {
+            "radius": 9,
+            "scaleRadius": true,
+            "useLocalExtrema": true,
+            latField: 'latitude',
+            lngField: 'longitude',
+            valueField: 'value'
+        };
+
+        var heatmapLayer = L.heatLayer([], cfg); // Create an empty Heatmap layer
+
+        var map = new L.Map('myMap', {
+            center: new L.LatLng(55.953251, -3.188267),
+            zoom: 12,
+            layers: [baseLayer, heatmapLayer]
+        });
+
+        fetch('DatasetUpdated/heatmap.geojson')
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                var heatData = [];
+                data.features.forEach(function (feature) {
+                    var lat = feature.properties.latitude;
+                    var lng = feature.properties.longitude;
+                    var value = feature.properties.price;
+                    heatData.push([lat, lng, value]);
+                });
+                heatmapLayer.setLatLngs(heatData).addTo(map);
+            })
+            .catch(function (error) {
+                console.log('Error al cargar el archivo GeoJSON:', error);
+            });
+    </script>
+</body>
+
+</html>
